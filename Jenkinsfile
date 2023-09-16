@@ -5,16 +5,18 @@ pipeline {
         jdk 'Java17'
         maven 'Maven3'
     }
+
     environment {
         APP_NAME = "register-app-pipeline"
         RELEASE = "1.0.0"
         DOCKER_USER = "ashfaque9x"
         DOCKER_PASS = 'dockerhub'
-        IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
+        IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-        //SONAR_URL = "http://54.252.243.214:9000/"
+        // SONAR_URL = "http://54.252.243.214:9000/"
         // JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
     }
+
     stages {
         stage("Cleanup Workspace") {
             steps {
@@ -40,23 +42,26 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-         environment {
-            SONAR_URL = "http://54.252.243.214:9000/"
-          }
-          steps {
-            withSonarQubeEnv(credentialsId: 'sonarqube_tokens') {
-               sh "mvn sonar:sonar -Dsonar.host.url=${SONAR_URL} -Dsonar.login=admin -Dsonar.password=shantanu"
+        stage("SonarQube Analysis") {
+            environment {
+                SONAR_URL = "http://54.252.243.214:9000/"
+            }
+            steps {
+                script {
+                    withSonarQubeEnv(credentialsId: 'sonarqube_tokens') {
+                        sh "mvn sonar:sonar -Dsonar.host.url=${SONAR_URL} -Dsonar.login=admin -Dsonar.password=shantanu"
+                    }
+                }
+            }
         }
-    }
-}
-        // stage("SonarQube Analysis"){
+
+        // stage("SonarQube Analysis") {
         //     steps {
         //         script {
         //             withSonarQubeEnv(credentialsId: 'sonarqube_tokens') {
         //                 sh "mvn sonar:sonar -Dsonar.host.url=${SONAR_URL}"
         //             }
-        //         }	
+        //         }
         //     }
         // }
 
@@ -86,7 +91,7 @@ pipeline {
         stage("Trivy Scan") {
             steps {
                 script {
-                    sh ('docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ashfaque9x/register-app-pipeline:latest --no-progress --scanners vuln  --exit-code 0 --severity HIGH,CRITICAL --format table')
+                    sh ('docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ashfaque9x/register-app-pipeline:latest --no-progress --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table')
                 }
             }
         }
