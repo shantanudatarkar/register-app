@@ -40,7 +40,7 @@ pipeline {
             }
         }
 
-        stage('Static Code Analysis') {
+        stage('SonarQube Analysis') {
             environment {
                 SONAR_URL = "http://54.252.243.214:9000/"
             }
