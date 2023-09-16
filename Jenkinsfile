@@ -12,7 +12,8 @@ pipeline {
             DOCKER_PASS = 'dockerhub'
             IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
             IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-	    //JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
+	        SONAR_URL = "http://54.252.243.214:9000/"
+        //JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
     }
     stages{
         stage("Cleanup Workspace"){
@@ -44,7 +45,7 @@ pipeline {
            steps {
 	           script {
                      withSonarQubeEnv(credentialsId: 'sonarqube_tokens') {
-                     sh'mvn sonar:sonar -Dsonar.host.url=${SONAR_URL} -Dsonar.login=admin -Dsonar.password=shantanu'
+                     sh "mvn sonar:sonar -Dsonar.host.url=${SONAR_URL}"
 		        }
 	           }	
            }
