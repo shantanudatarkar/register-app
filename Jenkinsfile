@@ -43,12 +43,12 @@ pipeline {
         }
 
         stage("SonarQube Analysis") {
-            environment {
-                SONAR_URL = "http://54.252.243.214:9000/"
+          //  environment {
+               // SONAR_URL = "http://54.252.243.214:9000/"
             }
             steps {
                 script {
-                    withSonarQubeEnv(credentialsId: 'soanrqube') {
+                    withSonarQubeEnv(credentialsId: 'sonarqube_tokens') {
                         sh "mvn sonar:sonar -Dsonar.host.url=${SONAR_URL} -Dsonar.login=admin -Dsonar.password=shantanu"
                     }
                 }
@@ -113,4 +113,4 @@ pipeline {
             }
         }
     }
-}
+
