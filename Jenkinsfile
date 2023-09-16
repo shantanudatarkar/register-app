@@ -45,7 +45,8 @@ pipeline {
                 SONAR_URL = "http://54.252.243.214:9000/"
             }
             steps {
-                withCredentials([string(credentialsId: 'sonarqube_tokens', variable: 'sonarqube')]) {
+                //withCredentials([string(credentialsId: 'sonarqube_tokens', variable: 'sonarqube')]) {
+                    withSonarQubeEnv(credentialsId: 'sonarqube_tokens') {
                     sh "mvn sonar:sonar -Dsonar.host.url=${SONAR_URL} -Dsonar.login=admin -Dsonar.password=shantanu"
                 }
             }
