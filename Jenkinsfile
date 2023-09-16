@@ -43,8 +43,8 @@ pipeline {
        stage("SonarQube Analysis"){
            steps {
 	           script {
-		        withSonarQubeEnv(credentialsId: 'sonarqube_tokens') { 
-                        sh "mvn sonar:sonar"
+                     withSonarQubeEnv(credentialsId: 'sonarqube_tokens') {
+                     sh'mvn sonar:sonar -Dsonar.host.url=${SONAR_URL} -Dsonar.login=admin -Dsonar.password=shantanu'
 		        }
 	           }	
            }
