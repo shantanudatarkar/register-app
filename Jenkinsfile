@@ -13,8 +13,8 @@ pipeline {
         DOCKER_PASS = 'dockerhub'
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-        // SONAR_URL = "http://54.252.243.214:9000/"
-        // JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
+        SONAR_URL = "http://54.252.243.214:9000/"
+        // Define JENKINS_API_TOKEN here if needed
     }
 
     stages {
@@ -43,9 +43,6 @@ pipeline {
         }
 
         stage("SonarQube Analysis") {
-          //  environment {
-               // SONAR_URL = "http://54.252.243.214:9000/"
-            }
             steps {
                 script {
                     withSonarQubeEnv(credentialsId: 'sonarqube_tokens') {
@@ -54,16 +51,6 @@ pipeline {
                 }
             }
         }
-
-        // stage("SonarQube Analysis") {
-        //     steps {
-        //         script {
-        //             withSonarQubeEnv(credentialsId: 'sonarqube_tokens') {
-        //                 sh "mvn sonar:sonar -Dsonar.host.url=${SONAR_URL}"
-        //             }
-        //         }
-        //     }
-        // }
 
         stage("Quality Gate") {
             steps {
@@ -77,11 +64,8 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('', DOCKER_PASS) {
-                        docker_image = docker.build "${IMAGE_NAME}"
-                    }
-
-                    docker.withRegistry('', DOCKER_PASS) {
-                        docker_image.push("${IMAGE_TAG}")
+                        docker_image = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
+                        docker_image.push()
                         docker_image.push('latest')
                     }
                 }
@@ -91,7 +75,7 @@ pipeline {
         stage("Trivy Scan") {
             steps {
                 script {
-                    sh ('docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ashfaque9x/register-app-pipeline:latest --no-progress --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table')
+                    sh 'docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ashfaque9x/register-app-pipeline:latest --no-progress --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table'
                 }
             }
         }
@@ -113,4 +97,4 @@ pipeline {
             }
         }
     }
-
+}
