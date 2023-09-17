@@ -110,6 +110,8 @@ pipeline {
         stage("Commit and Push Changes") {
             steps {
                 dir('/home/ubuntu/workspace/register-app/') {
+                     sh 'git config user.email "shan6101995@gmail.com"'
+                    sh 'git config user.name "shantanudatarkar"'
                     sh 'git add .'
                     sh 'git commit -m "Update image tag"'
                     sh 'git push origin main'
