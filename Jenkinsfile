@@ -102,14 +102,14 @@ pipeline {
             steps {
                 script {
                     def newImageTag = "${RELEASE}-${BUILD_NUMBER}"
-                    sh "sed -i 's|image: shan123456/java:.*|image: shan123456/java:${newImageTag}|' path/to/cloned/manifest/repo/deployment.yaml"
+                    sh "sed -i 's|image: shan123456/java:.*|image: shan123456/java:${newImageTag}|' /home/ubuntu/workspace/register-app/deployment.yaml"
                 }
             }
         }
 
         stage("Commit and Push Changes") {
             steps {
-                dir('path/to/cloned/manifest/repo') {
+                dir('/home/ubuntu/workspace/register-app/') {
                     sh 'git add .'
                     sh 'git commit -m "Update image tag"'
                     sh 'git push origin main'
@@ -119,7 +119,7 @@ pipeline {
 
         stage("Deploy Application") {
             steps {
-                dir('path/to/cloned/manifest/repo') {
+                dir('/home/ubuntu/workspace/register-app/') {
                     sh 'kubectl apply -f deployment.yaml'
                     sh 'kubectl apply -f service.yaml'
                 }
