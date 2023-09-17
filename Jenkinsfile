@@ -52,18 +52,21 @@ pipeline {
             }
         }
 
-        //stage("Quality Gate") {
-        //    steps {
-         //       script {
-         //           waitForQualityGate abortPipeline: false, credentialsId: 'sonarqube_tokens'
-         //       }
-         //   }
-        // }
+        // Uncomment this section if you want to wait for a Quality Gate
+        /*
+        stage("Quality Gate") {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonarqube_tokens'
+                }
+            }
+        }
+        */
 
         stage("Build & Push Docker Image") {
             steps {
                 script {
-                      withDockerRegistry(credentialsId: 'dockerhub_id') {
+                    withDockerRegistry(credentialsId: 'dockerhub_id') {
                         docker_image = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
                         docker_image.push()
                         docker_image.push('latest')
@@ -89,10 +92,36 @@ pipeline {
             }
         }
 
-        stage("Trigger CD Pipeline") {
+        stage("Clone Manifest Repository") {
+            steps {
+                git branch: 'main', credentialsId: 'github', url: 'https://github.com/shantanudatarkar/gitops-register-app-manifest.git'
+            }
+        }
+
+        stage("Update Image Tag in Manifest") {
             steps {
                 script {
-                    sh "curl -v -k --user clouduser:${JENKINS_API_TOKEN} -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded' --data 'IMAGE_TAG=${IMAGE_TAG}' 'ec2-13-232-128-192.ap-south-1.compute.amazonaws.com:8080/job/gitops-register-app-cd/buildWithParameters?token=gitops-token'"
+                    def newImageTag = "${RELEASE}-${BUILD_NUMBER}"
+                    sh "sed -i 's|image: shan123456/java:.*|image: shan123456/java:${newImageTag}|' path/to/cloned/manifest/repo/deployment.yaml"
+                }
+            }
+        }
+
+        stage("Commit and Push Changes") {
+            steps {
+                dir('path/to/cloned/manifest/repo') {
+                    sh 'git add .'
+                    sh 'git commit -m "Update image tag"'
+                    sh 'git push origin main'
+                }
+            }
+        }
+
+        stage("Deploy Application") {
+            steps {
+                dir('path/to/cloned/manifest/repo') {
+                    sh 'kubectl apply -f deployment.yaml'
+                    sh 'kubectl apply -f service.yaml'
                 }
             }
         }
