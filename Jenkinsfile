@@ -101,8 +101,8 @@ pipeline {
         stage("Update Image Tag in Manifest") {
             steps {
                 script {
-                    def newImageTag = "${RELEASE}-${BUILD_NUMBER}"
-                    sh "sed -i 's|image: shan123456/java:.*|image: shan123456/java:${newImageTag}|' /home/ubuntu/workspace/register-app/deployment.yaml"
+                    def newImageTag = "${DOCKER_USER}/${APP_NAME}:${RELEASE}-${BUILD_NUMBER}"
+                        sh "sed -i 's|image: ashfaque9x/register-app-pipeline:1.0.0-9|image: ${newImageTag}|' /home/ubuntu/workspace/register-app/deployment.yaml"
                 }
             }
         }
