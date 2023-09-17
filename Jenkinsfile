@@ -122,7 +122,7 @@ pipeline {
                 }
             }
         }
-
+    }
         stage("Deploy Application") {
             steps {
                 dir('/home/ubuntu/workspace/register-app/') {
