@@ -114,7 +114,7 @@ pipeline {
                     sh 'git config user.name "shantanudatarkar"'
                     // Retrieve GitHub credentials
                        withCredentials([usernameColonPassword(credentialsId: 'Github_id', variable: 'github')]) {
-                        sh "git remote set-url origin https://${github}@github.com/your-username/your-repo.git"
+                        sh "git remote set-url origin https://${github}@github.com/shantanudatarkar/gitops-register-app-manifest.git"
                         // Add, commit, and push the changes
                         sh 'git add .'
                         sh 'git commit -m "Update image tag"'
