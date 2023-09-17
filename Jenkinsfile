@@ -102,7 +102,7 @@ pipeline {
             steps {
                 script {
                     def newImageTag = "${DOCKER_USER}/${APP_NAME}:${RELEASE}-${BUILD_NUMBER}"
-                        sh "sed -i 's|image: ashfaque9x/register-app-pipeline:1.0.0-9|image: ${newImageTag}|' /home/ubuntu/workspace/register-app/deployment.yaml"
+                       sh "sed -i 's|image: shan123456/java:[0-9]\\+\\.[0-9]\\+\\.[0-9]\\+-[0-9]\\+|image: ${newImageTag}|' /home/ubuntu/workspace/register-app/deployment.yaml"
                 }
             }
         }
