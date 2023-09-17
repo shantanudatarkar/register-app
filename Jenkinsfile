@@ -118,13 +118,14 @@ pipeline {
                         // Add, commit, and push the changes
                         sh 'git add .'
                         sh 'git commit -m "Update image tag"'
-                        sh 'git push origin main'
+                    }   sh 'git push origin main'
                 }
             }
         }
     }
     stage("Deploy Application") {
       steps {
+         withCredentials([<object of type com.cloudbees.jenkins.plugins.awscredentials.AmazonWebServicesCredentialsBinding>]) {
         dir('/home/ubuntu/workspace/register-app/') {
             sh '/home/ubuntu/bin/kubectl apply -f deployment.yaml'
             sh '/home/ubuntu/bin/kubectl apply -f service.yaml'
