@@ -123,12 +123,12 @@ pipeline {
             }
         }
     }
-        stage("Deploy Application") {
-            steps {
-                dir('/home/ubuntu/workspace/register-app/') {
-                    sh 'kubectl apply -f deployment.yaml'
-                    sh 'kubectl apply -f service.yaml'
-                }
+    stage("Deploy Application") {
+      steps {
+        dir('/home/ubuntu/workspace/register-app/') {
+            sh '/home/ubuntu/bin/kubectl apply -f deployment.yaml'
+            sh '/home/ubuntu/bin/kubectl apply -f service.yaml'
+            }
             }
         }
     }
