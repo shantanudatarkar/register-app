@@ -66,7 +66,7 @@ pipeline {
         stage("Build & Push Docker Image") {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'dockerhub_id') {
+                    withDockerRegistry(credentialsId: 'dockerhub_id', url: 'https://registry.hub.docker.com') {
                         docker_image = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
                         docker_image.push()
                         docker_image.push('latest')
@@ -102,7 +102,7 @@ pipeline {
             steps {
                 script {
                     def newImageTag = "${DOCKER_USER}/${APP_NAME}:${RELEASE}-${BUILD_NUMBER}"
-                       sh "sed -i 's|image: shan123456/java:[0-9]\\+\\.[0-9]\\+\\.[0-9]\\+-[0-9]\\+|image: ${newImageTag}|' /home/ubuntu/workspace/register-app/deployment.yaml"
+                    sh "sed -i 's|image: shan123456/java:[0-9]\\+\\.[0-9]\\+\\.[0-9]\\+-[0-9]\\+|image: ${newImageTag}|' /home/ubuntu/workspace/register-app/deployment.yaml"
                 }
             }
         }
@@ -110,26 +110,40 @@ pipeline {
         stage("Commit and Push Changes") {
             steps {
                 dir('/home/ubuntu/workspace/register-app/') {
-                     sh 'git config user.email "shan6101995@gmail.com"'
+                    sh 'git config user.email "shan6101995@gmail.com"'
                     sh 'git config user.name "shantanudatarkar"'
                     // Retrieve GitHub credentials
-                       withCredentials([usernameColonPassword(credentialsId: 'Github_id', variable: 'github')]) {
+                    withCredentials([usernameColonPassword(credentialsId: 'Github_id', variable: 'github')]) {
                         sh "git remote set-url origin https://${github}@github.com/shantanudatarkar/gitops-register-app-manifest.git"
                         // Add, commit, and push the changes
                         sh 'git add .'
                         sh 'git commit -m "Update image tag"'
-                    }   sh 'git push origin main'
+                        sh 'git push origin main'
+                    }
                 }
             }
         }
-    }
-    stage("Deploy Application") {
-      steps {
-         withCredentials"([<object of type com.cloudbees.jenkins.plugins.awscredentials.AmazonWebServicesCredentialsBinding>])" {
-        dir('/home/ubuntu/workspace/register-app/') {
-            sh '/home/ubuntu/bin/kubectl apply -f deployment.yaml'
-            sh '/home/ubuntu/bin/kubectl apply -f service.yaml'
-            }
+        
+        stage("Deploy Application") {
+            steps {
+                script {
+                    withCredentials([[
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: 'aws_credentials', // Replace with your AWS credentials ID
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY',
+                    ]]) {
+                        dir('/home/ubuntu/workspace/register-app/') {
+                            // Set AWS environment variables
+                            sh 'export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID'
+                            sh 'export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY'
+
+                            // Deploy your application using kubectl
+                            sh '/home/ubuntu/bin/kubectl apply -f deployment.yaml'
+                            sh '/home/ubuntu/bin/kubectl apply -f service.yaml'
+                        }
+                    }
+                }
             }
         }
     }
