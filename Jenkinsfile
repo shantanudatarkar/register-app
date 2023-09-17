@@ -112,9 +112,13 @@ pipeline {
                 dir('/home/ubuntu/workspace/register-app/') {
                      sh 'git config user.email "shan6101995@gmail.com"'
                     sh 'git config user.name "shantanudatarkar"'
-                    sh 'git add .'
-                    sh 'git commit -m "Update image tag"'
-                    sh 'git push origin main'
+                    // Retrieve GitHub credentials
+                       withCredentials([usernameColonPassword(credentialsId: 'Github_id', variable: 'github')]) {
+                        sh "git remote set-url origin https://${github}@github.com/your-username/your-repo.git"
+                        // Add, commit, and push the changes
+                        sh 'git add deployment.yaml'
+                        sh 'git commit -m "Update image tag"'
+                        sh 'git push origin main'
                 }
             }
         }
