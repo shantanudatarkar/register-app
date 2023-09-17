@@ -123,19 +123,13 @@ pipeline {
             }
         }
     }
-}  stage("Deploy Application") {
-    steps {
-        withCredentials([
-            [
-                $class: 'AmazonWebServicesCredentialsBinding',
-                credentialsId: 'aws_credentials', // Replace with your AWS credentials ID
-                accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                secretKeyVariable: 'AWS_SECRET_ACCESS_KEY',
-            ]
-        ]) {
-            dir('/home/ubuntu/workspace/register-app/') {
-                sh '/home/ubuntu/bin/kubectl apply -f deployment.yaml'
-                sh '/home/ubuntu/bin/kubectl apply -f service.yaml'
+    stage("Deploy Application") {
+      steps {
+         withCredentials"([<object of type com.cloudbees.jenkins.plugins.awscredentials.AmazonWebServicesCredentialsBinding>])" {
+        dir('/home/ubuntu/workspace/register-app/') {
+            sh '/home/ubuntu/bin/kubectl apply -f deployment.yaml'
+            sh '/home/ubuntu/bin/kubectl apply -f service.yaml'
+            }
             }
         }
     }
