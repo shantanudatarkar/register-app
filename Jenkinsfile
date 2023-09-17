@@ -116,7 +116,7 @@ pipeline {
                        withCredentials([usernameColonPassword(credentialsId: 'Github_id', variable: 'github')]) {
                         sh "git remote set-url origin https://${github}@github.com/your-username/your-repo.git"
                         // Add, commit, and push the changes
-                        sh 'git add all'
+                        sh 'git add .'
                         sh 'git commit -m "Update image tag"'
                         sh 'git push origin main'
                 }
